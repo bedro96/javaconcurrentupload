@@ -17,27 +17,27 @@ public class BlobClient {
 
     public BlobClient() {
         try {
-            CloudStorageAccount account = CloudStorageAccount.parse(Config.CONNECTION_STRING);
-            CloudBlobClient serviceClient = account.createCloudBlobClient();
+            final CloudStorageAccount account = CloudStorageAccount.parse(Config.CONNECTION_STRING);
+            final CloudBlobClient serviceClient = account.createCloudBlobClient();
 
             container = serviceClient.getContainerReference(Config.CONTAINER_NAME);
             container.createIfNotExists();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
 
-    public void upload(InputStream is, String path, long length, String contentType) throws Exception {
-        BlobRequestOptions options = new BlobRequestOptions();
+    public void upload(final InputStream is, final String path, final long length, final String contentType) throws Exception {
+        final BlobRequestOptions options = new BlobRequestOptions();
         options.setConcurrentRequestCount(1);
         options.setSingleBlobPutThresholdInBytes(SINGLE_BLOB_PUT_THRESHOLD_BYTES);
         options.setTimeoutIntervalInMs(timeout);
         options.setMaximumExecutionTimeInMs(Config.TIMEOUT_MAX);
 
-        CloudBlockBlob blob = container.getBlockBlobReference(path);
+        final CloudBlockBlob blob = container.getBlockBlobReference(path);
         // Adding AccessCondition to contain lease ID
-        AccessCondition blobAccessCondition = new AccessCondition();       
+        final AccessCondition blobAccessCondition = new AccessCondition();       
 
         while(!blob.exists()){
 
@@ -53,7 +53,7 @@ public class BlobClient {
                 blob.upload(is, length, blobAccessCondition, options, null);
                 System.out.println("\nRelease the Lease on the blob.");
                 blob.releaseLease(blobAccessCondition);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 e.printStackTrace();
                 if(e.toString().contains("There is currently a lease on the blob and no lease ID was specified in the request") || 
                    e.toString().contains("There is already a lease present")){
